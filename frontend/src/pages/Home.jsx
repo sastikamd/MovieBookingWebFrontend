@@ -60,52 +60,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose CinemaBooking?
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We make movie booking simple, fast, and secure
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-clock text-2xl text-primary-600"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Instant Booking</h3>
-              <p className="text-gray-600">
-                Book your tickets in seconds with our lightning-fast platform
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-shield-alt text-2xl text-primary-600"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Secure Payment</h3>
-              <p className="text-gray-600">
-                Your transactions are protected with bank-level security
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-mobile-alt text-2xl text-primary-600"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Mobile Tickets</h3>
-              <p className="text-gray-600">
-                Skip the queue with digital tickets on your phone
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Trending Movies Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -189,24 +143,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-primary-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Book Your Next Movie?
-          </h2>
-          <p className="text-xl mb-8">
-            Join thousands of movie lovers who trust CinemaBooking
-          </p>
-          <Link
-            to="/movies"
-            className="inline-flex items-center px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            <i className="fas fa-play-circle mr-2"></i>
-            Explore Movies
-          </Link>
-        </div>
-      </section>
     </div>
   );
 };
