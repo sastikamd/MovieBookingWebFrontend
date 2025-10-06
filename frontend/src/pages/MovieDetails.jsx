@@ -10,9 +10,14 @@ const MovieDetails = () => {
 
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [seatType, setSeatType] = useState('regular');
+  const [selectedShowDate, setSelectedShowDate] = useState(new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]);
+  const [selectedShowTime, setSelectedShowTime] = useState('7:00 PM');
+  const [selectedTheater, setSelectedTheater] = useState({
+    name: 'PVR Phoenix MarketCity',
+    location: 'Mumbai'
+  });
 
   useEffect(() => {
     fetchMovie();
@@ -56,60 +61,42 @@ const MovieDetails = () => {
     }
   };
 
+  // Calculate total price including GST and booking fees
   const calculateTotalPrice = () => {
     if (!movie || selectedSeats.length === 0) return 0;
-
     const ticketPrice = movie.pricing[seatType] || 280;
     const subtotal = ticketPrice * selectedSeats.length;
     const gst = subtotal * 0.18;
     const bookingFee = selectedSeats.length * 25;
-
     return Math.round(subtotal + gst + bookingFee);
   };
 
-  const handleBooking = async () => {
+  // New handleBookTickets navigates to payment page with booking info
+  const handleBookTickets = () => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: `/movie/${id}` } });
       return;
     }
 
     if (selectedSeats.length === 0) {
-      alert('Please select seats');
+      alert('Please select seats.');
       return;
     }
 
-    setBookingLoading(true);
-
-    try {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const bookingData = {
+    navigate('/payment', {
+      state: {
+        amount: calculateTotalPrice(),
         movieId: id,
-        showDate: tomorrow.toISOString().split('T')[0],
-        showTime: '7:00 PM',
+        showDate: selectedShowDate,
+        showTime: selectedShowTime,
         seats: selectedSeats.map(seatNumber => ({
           seatNumber,
           seatType,
           price: movie.pricing[seatType] || 280
         })),
-        theater: {
-          name: 'PVR Phoenix MarketCity',
-          location: 'Mumbai'
-        }
-      };
-
-      const response = await axios.post('/bookings', bookingData);
-
-      if (response.data.success) {
-        navigate(`/booking-confirmation/${response.data.data._id}`);
+        theater: selectedTheater
       }
-    } catch (error) {
-      console.error('Booking error:', error);
-      alert(error.response?.data?.message || 'Booking failed');
-    } finally {
-      setBookingLoading(false);
-    }
+    });
   };
 
   if (loading) {
@@ -197,9 +184,7 @@ const MovieDetails = () => {
 
               <div>
                 <h3 className="text-lg font-semibold mb-2">Plot</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  {movie.description}
-                </p>
+                <p className="text-gray-300 leading-relaxed">{movie.description}</p>
               </div>
             </div>
           </div>
@@ -288,15 +273,15 @@ const MovieDetails = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Date:</span>
-                  <span className="font-medium">Tomorrow</span>
+                  <span className="font-medium">{selectedShowDate}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Time:</span>
-                  <span className="font-medium">7:00 PM</span>
+                  <span className="font-medium">{selectedShowTime}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Theater:</span>
-                  <span className="font-medium">PVR Phoenix MarketCity</span>
+                  <span className="font-medium">{selectedTheater.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Seats:</span>
@@ -337,21 +322,12 @@ const MovieDetails = () => {
               )}
 
               <button
-                onClick={handleBooking}
-                disabled={selectedSeats.length === 0 || bookingLoading}
+                onClick={handleBookTickets}
+                disabled={selectedSeats.length === 0}
                 className="w-full btn btn-primary mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {bookingLoading ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin mr-2"></i>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-credit-card mr-2"></i>
-                    Book Tickets (₹{calculateTotalPrice()})
-                  </>
-                )}
+                <i className="fas fa-credit-card mr-2"></i>
+                Book Tickets (₹{calculateTotalPrice()})
               </button>
 
               {!isAuthenticated && (
