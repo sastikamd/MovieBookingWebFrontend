@@ -35,7 +35,7 @@ function App() {
                     <Profile />
                   </ProtectedRoute>
                 } />
-                <Route path="/booking-confirmation/:bookingId" element={
+                <Route path="/booking-confirmation" element={
                   <ProtectedRoute>
                     <BookingConfirmation />
                   </ProtectedRoute>

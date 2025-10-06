@@ -1,45 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const BookingConfirmation = () => {
-  const { bookingId } = useParams();
+  const [searchParams] = useSearchParams();
+  const paymentIntentId = searchParams.get('payment_intent');
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBooking();
-  }, [bookingId]);
-
-  const fetchBooking = async () => {
-    try {
-      const response = await axios.get(`/bookings/${bookingId}`);
-      if (response.data.success) {
-        setBooking(response.data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching booking:', error);
-    } finally {
+    if (!paymentIntentId) {
       setLoading(false);
+      return;
     }
-  };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+    // Fetch booking by Stripe paymentIntent ID
+    axios.get(`${process.env.REACT_APP_API_URL}/bookings/by-payment-intent/${paymentIntentId}`)
+      .then((res) => {
+        if (res.data.success) {
+          setBooking(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching booking:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [paymentIntentId]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading booking details...</p>
-        </div>
+        <p>Loading booking confirmation...</p>
       </div>
     );
   }
@@ -50,16 +43,26 @@ const BookingConfirmation = () => {
         <div className="text-center">
           <i className="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking not found</h2>
-          <Link to="/profile" className="btn btn-primary">View My Bookings</Link>
+          <Link to="/profile" className="btn btn-primary">
+            View My Bookings
+          </Link>
         </div>
       </div>
     );
   }
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-2xl mx-auto px-4">
-        {/* Success Header */}
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i className="fas fa-check-circle text-4xl text-green-500"></i>
@@ -72,15 +75,13 @@ const BookingConfirmation = () => {
           </p>
         </div>
 
-        {/* Booking Details Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 p-6 text-white">
             <h2 className="text-2xl font-bold">{booking.movieTitle}</h2>
-            <p className="text-primary-100 mt-1">Booking ID: {booking.bookingId}</p>
+            <p className="text-primary-100 mt-1">Booking ID: {booking._id}</p>
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Show Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">
@@ -89,9 +90,7 @@ const BookingConfirmation = () => {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <i className="fas fa-calendar text-gray-400 w-5"></i>
-                    <span className="ml-3 text-gray-900">
-                      {formatDate(booking.showDate)}
-                    </span>
+                    <span className="ml-3 text-gray-900">{formatDate(booking.showDate)}</span>
                   </div>
                   <div className="flex items-center">
                     <i className="fas fa-clock text-gray-400 w-5"></i>
@@ -99,9 +98,7 @@ const BookingConfirmation = () => {
                   </div>
                   <div className="flex items-center">
                     <i className="fas fa-map-marker-alt text-gray-400 w-5"></i>
-                    <span className="ml-3 text-gray-900">
-                      {booking.theater?.name || 'PVR Phoenix MarketCity'}
-                    </span>
+                    <span className="ml-3 text-gray-900">{booking.theater?.name || 'PVR Phoenix MarketCity'}</span>
                   </div>
                 </div>
               </div>
@@ -113,9 +110,7 @@ const BookingConfirmation = () => {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <i className="fas fa-chair text-gray-400 w-5"></i>
-                    <span className="ml-3 text-gray-900">
-                      {booking.seats.length} Seat(s)
-                    </span>
+                    <span className="ml-3 text-gray-900">{booking.seats.length} Seat(s)</span>
                   </div>
                   <div className="flex items-start">
                     <i className="fas fa-list text-gray-400 w-5 mt-1"></i>
@@ -136,7 +131,6 @@ const BookingConfirmation = () => {
               </div>
             </div>
 
-            {/* Payment Details */}
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">
                 Payment Details
@@ -155,7 +149,6 @@ const BookingConfirmation = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Link to="/profile" className="btn btn-secondary flex-1 text-center">
             <i className="fas fa-list mr-2"></i>
