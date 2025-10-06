@@ -18,7 +18,7 @@ const CheckoutForm = ({ clientSecret, bookingData, onSuccess }) => {
 
     setProcessing(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: { return_url: window.location.origin + '/booking-confirmation' },
     });
@@ -26,12 +26,17 @@ const CheckoutForm = ({ clientSecret, bookingData, onSuccess }) => {
     if (error) {
       setMessage(error.message);
       setProcessing(false);
-    } else {
-      // On success, call backend to create booking record
+    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       try {
+        // Include paymentIntentId in booking payload
+        const bookingPayload = {
+          ...bookingData,
+          paymentIntentId: paymentIntent.id,
+        };
+
         await axios.post(
           `${import.meta.env.VITE_API_URL}/bookings`,
-          bookingData,
+          bookingPayload,
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );
         onSuccess();
@@ -79,7 +84,7 @@ const PaymentPage = () => {
     }
 
     createPaymentIntent();
-  }, []);
+  }, [bookingData, navigate]);
 
   if (loading) return <p>Loading payment form...</p>;
 

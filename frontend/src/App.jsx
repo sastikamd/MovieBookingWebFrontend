@@ -35,11 +35,7 @@ function App() {
                     <Profile />
                   </ProtectedRoute>
                 } />
-                <Route path="/booking-confirmation" element={
-                  <ProtectedRoute>
-                    <BookingConfirmation />
-                  </ProtectedRoute>
-                } />
+                <Route path="/booking-confirmation" element={<BookingConfirmation />} />
                 <Route path="*" element={
                   <div className="min-h-screen flex items-center justify-center">
                     <div className="text-center">
