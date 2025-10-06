@@ -72,32 +72,35 @@ const MovieDetails = () => {
   };
 
   // New handleBookTickets navigates to payment page with booking info
-  const handleBookTickets = () => {
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/movie/${id}` } });
-      return;
-    }
+ const handleBookTickets = () => {
+  if (!isAuthenticated) {
+    navigate('/login', { state: { from: `/movie/${id}` } });
+    return;
+  }
 
-    if (selectedSeats.length === 0) {
-      alert('Please select seats.');
-      return;
-    }
+  if (selectedSeats.length === 0) {
+    alert('Please select seats.');
+    return;
+  }
 
-    navigate('/paymentPage', {
-      state: {
-        amount: calculateTotalPrice(),
-        movieId: id,
-        showDate: selectedShowDate,
-        showTime: selectedShowTime,
-        seats: selectedSeats.map(seatNumber => ({
-          seatNumber,
-          seatType,
-          price: movie.pricing[seatType] || 280
-        })),
-        theater: selectedTheater
-      }
-    });
-  };
+  // Fixed path from '/paymentPage' to '/payment'
+  navigate('/payment', {
+  state: {
+    amount: calculateTotalPrice(),
+    movieId: id,
+    showDate: selectedShowDate,
+    showTime: selectedShowTime,
+    seats: selectedSeats.map(seatNumber => ({
+      seatNumber,
+      seatType,
+      price: movie.pricing[seatType] || 280,
+    })),
+    theater: selectedTheater
+  }
+});
+
+};
+
 
   if (loading) {
     return (
