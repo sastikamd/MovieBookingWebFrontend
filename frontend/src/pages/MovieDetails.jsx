@@ -83,7 +83,7 @@ const MovieDetails = () => {
       return;
     }
 
-    navigate('/payment', {
+    navigate('/paymentPage', {
       state: {
         amount: calculateTotalPrice(),
         movieId: id,
